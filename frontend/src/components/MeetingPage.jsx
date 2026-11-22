@@ -76,9 +76,10 @@ function MeetingPage() {
   const [nameError, setNameError] = useState("")
   const displayName = isHost ? getHostDisplayName(user) : participantName
   const [teachingMode, setTeachingMode] = useState(location.state?.teachingMode === true)
+  const [takeAttendance, setTakeAttendance] = useState(location.state?.takeAttendance !== false)
   const [teachingSource, setTeachingSource] = useState(location.state?.teachingSource || null)
-  const teachingContextRef = useRef({ teachingMode, teachingSource })
-  teachingContextRef.current = { teachingMode, teachingSource }
+  const teachingContextRef = useRef({ teachingMode, teachingSource, takeAttendance })
+  teachingContextRef.current = { teachingMode, teachingSource, takeAttendance }
 
   const [connected, setConnected] = useState(false)
   const [chatSocket, setChatSocket] = useState(null)
@@ -758,12 +759,13 @@ function MeetingPage() {
 
     socket.on("teaching-context", (context) => {
       setTeachingMode(context?.teachingMode === true)
+      setTakeAttendance(context?.takeAttendance !== false)
       setTeachingSource(context?.teachingSource || null)
       if (context?.teachingMode) {
         setAiMessages((current) => current.length === 1 && current[0].role === "assistant"
           ? [{ ...current[0], content: "Hi, I’m Millie. Ask me about today’s lesson and I’ll follow your teacher’s material and examples." }]
           : current)
-        if (!isHost && attendanceSocketRef.current !== socket.id) {
+        if (!isHost && context?.takeAttendance !== false && attendanceSocketRef.current !== socket.id) {
           attendanceSocketRef.current = socket.id
           const recordAttendance = async () => {
             let lastError

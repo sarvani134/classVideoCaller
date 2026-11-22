@@ -47,6 +47,7 @@ export const socketConnection=(server)=>{
                  aiPermissions[path]=null
                 teachingContexts[path] = {
                     teachingMode: context?.teachingMode === true,
+                    takeAttendance: context?.teachingMode === true && context?.takeAttendance !== false,
                     teachingSource: context?.teachingMode === true && context?.teachingSource?.content
                         ? context.teachingSource
                         : null,
@@ -199,7 +200,7 @@ socket.on("unpin-message", (messageId) => {
                 "ai-permission",
                  aiPermissions[path] ?? false
                             )
-                socket.emit("teaching-context", teachingContexts[path] || { teachingMode: false, teachingSource: null })
+                socket.emit("teaching-context", teachingContexts[path] || { teachingMode: false, takeAttendance: false, teachingSource: null })
                 for (const participantId of connections[path]) {
                     const name = participantNames[participantId]
                     if (name) io.to(socket.id).emit("participant-name", participantId, name)

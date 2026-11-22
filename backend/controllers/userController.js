@@ -16,6 +16,7 @@ export const saveUser = async (req, res) => {
     let status = 201
 
     const user = await User.create({
+      userId: auth0Id,
       auth0Id,
       name: typeof name === "string" ? name : undefined,
       email: typeof email === "string" ? email : undefined,

@@ -27,24 +27,27 @@ const makeSheet = (rows) => {
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${xmlRows}</sheetData></worksheet>`
 }
 
-const formatDate = (value) => value ? new Date(value).toLocaleString() : "Still in meeting"
+const formatDate = (value) => value ? new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "medium" }) : "Still in class"
 const formatDuration = (seconds = 0) => {
-  const minutes = Math.floor(seconds / 60)
-  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+  const wholeSeconds = Math.max(0, Math.floor(seconds))
+  const hours = Math.floor(wholeSeconds / 3600)
+  const minutes = Math.floor((wholeSeconds % 3600) / 60)
+  const remainderSeconds = wholeSeconds % 60
+  return hours ? `${hours}h ${minutes}m ${remainderSeconds}s` : minutes ? `${minutes}m ${remainderSeconds}s` : `${remainderSeconds}s`
 }
 
 export default async function exportAttendanceXlsx(report) {
   const { default: JSZip } = await import("jszip")
   const rows = [
-    ["Participant", "Email", "First joined", "Last left", "Longest session", "Joins", "Duration (minutes)"],
+    ["Student", "Email", "Login time", "Logout time", "Visit duration", "Total class time", "Visits"],
     ...report.sessions.map((session) => [
       session.studentName,
       session.email || "",
       formatDate(session.joinedAt),
       formatDate(session.leftAt),
       formatDuration(session.durationSeconds),
+      formatDuration(session.totalDurationSeconds || 0),
       session.joinCount || 1,
-      Math.round((session.durationSeconds || 0) / 60),
     ]),
   ]
 

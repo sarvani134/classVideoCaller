@@ -19,12 +19,14 @@ const meetingSchema = new mongoose.Schema({
   hostAuth0Id: { type: String, required: true, index: true },
   title: { type: String, required: true, trim: true, maxlength: 120 },
   teachingMode: { type: Boolean, default: false },
+  takeAttendance: { type: Boolean, default: true },
   teachingSource: { type: mongoose.Schema.Types.Mixed, default: null },
   status: { type: String, enum: ["scheduled", "live", "ended"], required: true },
   scheduledAt: { type: Date, default: null },
   startedAt: { type: Date, default: null },
   endedAt: { type: Date, default: null },
-  attendanceVersion: { type: Number, default: 2 },
+  attendanceClearedAt: { type: Date, default: null },
+  attendanceVersion: { type: Number, default: 3 },
   attendees: { type: [attendeeSchema], default: [] },
 }, { timestamps: true })
 

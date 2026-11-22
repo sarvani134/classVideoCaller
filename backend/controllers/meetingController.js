@@ -7,7 +7,7 @@ const cleanText = (value, maxLength, fallback = "") =>
 
 export const createMeeting = async (req, res) => {
   const hostAuth0Id = currentUserId(req)
-  const { roomId, title, teachingMode, scheduledAt, teachingSource } = req.body || {}
+  const { roomId, title, teachingMode, takeAttendance, scheduledAt, teachingSource } = req.body || {}
   if (!hostAuth0Id || typeof roomId !== "string" || !roomId.trim()) {
     return res.status(400).json({ msg: "A meeting room ID is required." })
   }
@@ -23,6 +23,7 @@ export const createMeeting = async (req, res) => {
       hostAuth0Id,
       title: cleanText(title, 120, teachingMode ? "Class session" : "Meeting"),
       teachingMode: teachingMode === true,
+      takeAttendance: teachingMode === true && takeAttendance !== false,
       teachingSource: teachingMode === true && teachingSource?.content ? teachingSource : null,
       status: date ? "scheduled" : "live",
       scheduledAt: date,
@@ -123,8 +124,8 @@ export const joinAttendance = async (req, res) => {
     return res.status(400).json({ msg: "A connected participant is required." })
   }
   try {
-    const meeting = await Meeting.findOne({ roomId: req.params.roomId, status: "live", teachingMode: true })
-    if (!meeting) return res.status(404).json({ msg: "This teaching session is not available for attendance." })
+    const meeting = await Meeting.findOne({ roomId: req.params.roomId, status: "live", teachingMode: true, takeAttendance: { $ne: false } })
+    if (!meeting) return res.status(404).json({ msg: "Attendance is disabled or this teaching session is not available." })
     let attendee = meeting.attendees.find((entry) => entry.auth0Id === auth0Id)
     if (!attendee) {
       const profile = await User.findOne({ auth0Id }).lean()
@@ -143,6 +144,7 @@ export const joinAttendance = async (req, res) => {
     const existingSession = attendee.sessions.find((session) => session.socketId === socketId)
     if (!existingSession) {
       attendee.sessions.push({ socketId: socketId.trim(), joinedAt: new Date(), leftAt: null, durationSeconds: 0 })
+      meeting.attendanceClearedAt = null
       await meeting.save()
     }
     return res.json({ tracked: true })
@@ -162,34 +164,33 @@ export const getAttendance = async (req, res) => {
     if (!meeting) return res.status(404).json({ msg: "Teaching meeting not found." })
 
     const now = new Date()
-    const attendees = []
+    const sessions = []
+    const studentIds = new Set()
     for (const attendee of meeting.attendees || []) {
-      const sessions = []
-      for (const session of attendee.sessions || []) {
+      const attendanceSessions = attendee.sessions || []
+      if (attendanceSessions.length) studentIds.add(attendee.auth0Id)
+      const studentTotalDurationSeconds = attendanceSessions.reduce((total, session) => {
+        const end = session.leftAt || (meeting.status === "ended" ? meeting.endedAt : now)
+        return total + Math.max(0, session.durationSeconds || Math.floor((new Date(end) - new Date(session.joinedAt)) / 1000))
+      }, 0)
+      for (const session of attendanceSessions) {
         const leftAt = session.leftAt || (meeting.status === "ended" ? meeting.endedAt : null)
         const elapsed = leftAt
           ? session.durationSeconds || Math.floor((new Date(leftAt) - new Date(session.joinedAt)) / 1000)
           : Math.floor((now - new Date(session.joinedAt)) / 1000)
         sessions.push({
+          studentName: attendee.name,
+          email: attendee.email,
           joinedAt: session.joinedAt,
           leftAt,
           durationSeconds: Math.max(0, elapsed),
+          totalDurationSeconds: studentTotalDurationSeconds,
+          joinCount: attendanceSessions.length,
+          status: leftAt ? "left" : "present",
         })
       }
-      if (!sessions.length) continue
-      const longestSession = sessions.reduce((longest, session) => session.durationSeconds > longest.durationSeconds ? session : longest)
-      attendees.push({
-          studentName: attendee.name,
-          email: attendee.email,
-          joinedAt: sessions.reduce((earliest, session) => new Date(session.joinedAt) < new Date(earliest) ? session.joinedAt : earliest, sessions[0].joinedAt),
-          leftAt: sessions.some((session) => !session.leftAt) ? null : sessions.reduce((latest, session) => new Date(session.leftAt) > new Date(latest) ? session.leftAt : latest, sessions[0].leftAt),
-          durationSeconds: longestSession.durationSeconds,
-          longestJoinedAt: longestSession.joinedAt,
-          longestLeftAt: longestSession.leftAt,
-          joinCount: sessions.length,
-      })
     }
-    attendees.sort((a, b) => new Date(a.joinedAt) - new Date(b.joinedAt))
+    sessions.sort((a, b) => new Date(a.joinedAt) - new Date(b.joinedAt))
     return res.json({
       meeting: {
         roomId: meeting.roomId,
@@ -198,10 +199,11 @@ export const getAttendance = async (req, res) => {
         scheduledAt: meeting.scheduledAt,
         startedAt: meeting.startedAt,
         endedAt: meeting.endedAt,
+        takeAttendance: meeting.takeAttendance !== false,
       },
-      studentCount: attendees.length,
-      sessionCount: attendees.reduce((count, attendee) => count + attendee.joinCount, 0),
-      sessions: attendees,
+      studentCount: studentIds.size,
+      sessionCount: sessions.length,
+      sessions,
     })
   } catch (error) {
     console.error("Attendance report failed:", error.message)
@@ -217,10 +219,12 @@ export const clearMeetingAttendance = async (req, res) => {
       teachingMode: true,
     })
     if (!meeting) return res.status(404).json({ msg: "Teaching meeting not found." })
-    const deletedParticipants = meeting.attendees.length
-    meeting.attendees = []
+    const deletedParticipants = meeting.attendees?.length || 0
+    const deletedVisits = (meeting.attendees || []).reduce((total, attendee) => total + (attendee.sessions?.length || 0), 0)
+    meeting.set("attendees", [])
+    meeting.attendanceClearedAt = new Date()
     await meeting.save()
-    return res.json({ deletedParticipants })
+    return res.json({ deletedParticipants, deletedVisits, clearedSessions: 1 })
   } catch (error) {
     console.error("Attendance clear failed:", error.message)
     return res.status(500).json({ msg: "Unable to clear attendance for this session." })
@@ -229,13 +233,15 @@ export const clearMeetingAttendance = async (req, res) => {
 
 export const clearAllAttendance = async (req, res) => {
   try {
-    const meetings = await Meeting.find({ hostAuth0Id: currentUserId(req), teachingMode: true }).select("attendees").lean()
+    const meetings = await Meeting.find({ hostAuth0Id: currentUserId(req), teachingMode: true }).select("attendees status").lean()
+    const reportSessions = meetings.filter((meeting) => meeting.status !== "scheduled").length
     const deletedParticipants = meetings.reduce((total, meeting) => total + (meeting.attendees?.length || 0), 0)
+    const deletedVisits = meetings.reduce((total, meeting) => total + (meeting.attendees || []).reduce((sum, attendee) => sum + (attendee.sessions?.length || 0), 0), 0)
     const result = await Meeting.updateMany(
       { hostAuth0Id: currentUserId(req), teachingMode: true },
-      { $set: { attendees: [] } },
+      { $set: { attendees: [], attendanceClearedAt: new Date() } },
     )
-    return res.json({ deletedParticipants, clearedSessions: result.modifiedCount })
+    return res.json({ deletedParticipants, deletedVisits, clearedSessions: reportSessions, modifiedSessions: result.modifiedCount })
   } catch (error) {
     console.error("All attendance clear failed:", error.message)
     return res.status(500).json({ msg: "Unable to clear attendance reports." })

@@ -17,6 +17,7 @@ import dns from "node:dns";
 
 import { router } from "./routes/userRoute.js"
 import { Meeting } from "./models/meetingModel.js"
+import { User } from "./models/userModel.js"
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]); 
                                              
@@ -36,9 +37,27 @@ app.use((error, req, res, next) => {
 const start=async()=>{
     const connectDB=await mongoose.connect(process.env.CONNECTION_STRING)
     console.log("connected to DB")
+    try {
+        const userIndexes = await User.collection.indexes()
+        const obsoleteUserIdIndex = userIndexes.find((index) =>
+            index.unique === true && Object.keys(index.key || {}).length === 1 && index.key.userId !== undefined,
+        )
+        if (obsoleteUserIdIndex) {
+            await User.collection.dropIndex(obsoleteUserIdIndex.name)
+            console.log(`Removed obsolete unique index ${obsoleteUserIdIndex.name} from users`)
+        }
+    } catch (error) {
+        if (error.code === 26 || error.codeName === "NamespaceNotFound") {
+            // The users collection is created on first profile save.
+        } else if (error.code === 13 || error.codeName === "Unauthorized") {
+            console.warn("Could not remove the obsolete userId index; new profiles will populate userId until the index can be removed")
+        } else {
+            throw error
+        }
+    }
     const attendanceMigration = await Meeting.updateMany(
-        { attendanceVersion: { $ne: 2 } },
-        { $set: { attendees: [], attendanceVersion: 2 } },
+        { attendanceVersion: { $ne: 3 } },
+        { $set: { attendees: [], attendanceVersion: 3 } },
     )
     if (attendanceMigration.modifiedCount) {
         console.log(`Cleared legacy attendance from ${attendanceMigration.modifiedCount} meeting records`)

@@ -115,6 +115,11 @@
 .host-mode-copy small { font-size: 13px; }
 .host-mode-icon { width: 42px; height: 42px; flex-basis: 42px; }
 .host-source-card { gap: 14px; margin-top: 22px; padding: 19px; }
+.host-attendance-choice { display: flex; align-items: flex-start; gap: 12px; margin-top: 18px; padding: 16px; border: 1px solid #dce7f5; border-radius: 13px; background: #f8fbff; color: #294869; cursor: pointer; }
+.host-attendance-choice input { width: 18px; height: 18px; flex: 0 0 auto; margin: 2px 0 0; accent-color: #347ed1; }
+.host-attendance-choice span { display: grid; gap: 4px; }
+.host-attendance-choice strong { font-size: 14px; }
+.host-attendance-choice small { color: #71839a; font-size: 12px; line-height: 1.5; }
 .host-source-card h2 { font-size: 16px; }
 .host-source-hint { font-size: 12px; }
 #root .dashboard > main .host-upload-button { min-height: 44px; padding: 10px 14px; font-size: 13px; }

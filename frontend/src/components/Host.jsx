@@ -12,6 +12,7 @@ function Host() {
   const { getAccessTokenSilently } = useAuth0()
   const fileInput = useRef(null)
   const [mode, setMode] = useState("meeting")
+  const [takeAttendance, setTakeAttendance] = useState(true)
   const [sources, setSources] = useState([])
   const [error, setError] = useState("")
   const [isReading, setIsReading] = useState(false)
@@ -112,6 +113,7 @@ function Host() {
         roomId,
         title: title.trim() || (mode === "teaching" ? "Class session" : "Meeting"),
         teachingMode: mode === "teaching",
+        takeAttendance: mode === "teaching" && takeAttendance,
         scheduledAt: startAt ? new Date(startAt).toISOString() : null,
         teachingSource: mode === "teaching" ? (sources.filter((item) => item.type === "text").length
           ? { type: "text", name: sources.filter((item) => item.type === "text").map((item) => item.name).join(", "), content: sources.filter((item) => item.type === "text").map((item) => "--- " + item.name + " ---\n" + item.content).join("\n\n") }
@@ -122,7 +124,7 @@ function Host() {
         setScheduleOpen(false)
       } else {
         navigate(`/meeting/${roomId}`, {
-          state: { isHost: true, teachingMode: mode === "teaching", teachingSource: mode === "teaching" && sources.filter((item) => item.type === "text").length
+          state: { isHost: true, teachingMode: mode === "teaching", takeAttendance: mode === "teaching" && takeAttendance, teachingSource: mode === "teaching" && sources.filter((item) => item.type === "text").length
             ? { type: "text", name: sources.filter((item) => item.type === "text").map((item) => item.name).join(", "), content: sources.filter((item) => item.type === "text").map((item) => "--- " + item.name + " ---\n" + item.content).join("\n\n") }
             : sources[0] || null, meetingTitle: response.data.meeting.title },
         })
@@ -190,6 +192,11 @@ function Host() {
           <small className="host-source-hint">Add multiple JPG, PNG, WebP, PDF, PPTX, DOCX, or text files. Each file can be up to 4 MB.</small>
         </section>
       )}
+
+      {mode === "teaching" && <label className="host-attendance-choice">
+        <input type="checkbox" checked={takeAttendance} onChange={(event) => setTakeAttendance(event.target.checked)} />
+        <span><strong>Take attendance</strong><small>Record student names, login and logout times, and class duration.</small></span>
+      </label>}
 
       {scheduleOpen && !scheduledMeeting && (
         <section className="host-schedule-form" aria-labelledby="host-schedule-title">
