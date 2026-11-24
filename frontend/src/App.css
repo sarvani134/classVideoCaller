@@ -294,6 +294,7 @@
 @media (prefers-reduced-motion: reduce) {
   #root > .meeting > .meeting-controls > button::after { transition: none; }
 }
+
 #root > .meeting > .meeting-video {
   position: relative;
   overflow: hidden;
@@ -1340,4 +1341,332 @@
 }
 @media (prefers-reduced-motion: reduce) {
   #root > .meeting > .meeting-controls > button::after { transition: none; }
+}
+
+/* Polished call layout: steadier spacing, stronger labels, and restrained motion. */
+#root > .meeting {
+  padding-inline: clamp(14px, 3vw, 48px);
+  background:
+    radial-gradient(ellipse at 50% 0%, #263243 0%, transparent 50%),
+    linear-gradient(145deg, #171d27 0%, #11151b 70%);
+}
+.meeting-header {
+  min-height: 76px;
+  border-bottom-color: #ffffff1c;
+}
+.meeting-title-group h1 { color: #fff; font-size: clamp(16px, 1.4vw, 19px); }
+.meeting-title-group > div > span { color: #c0cad8; }
+.meeting-connection-dot { transition: background-color 220ms ease, box-shadow 220ms ease; }
+.meeting-header-actions { gap: 10px; }
+.meeting-participant-count, .meeting-room-code {
+  min-height: 40px;
+  border-color: #ffffff24;
+  background: #ffffff0d;
+  color: #eef3fa;
+}
+.meeting-room-code { color: #c8d2df; }
+.meeting-room-code strong { color: #fff; }
+.meeting-stage {
+  align-content: center;
+  align-items: stretch;
+  gap: clamp(12px, 1.6vw, 22px);
+  padding: clamp(16px, 2.6vh, 30px) 0;
+  scrollbar-width: thin;
+}
+.meeting-stage .meeting-video {
+  min-height: 180px;
+  max-height: min(68svh, 760px);
+  border: 1px solid #ffffff2b;
+  border-radius: 20px;
+  box-shadow: 0 16px 42px #0005, 0 0 0 1px #ffffff08 inset;
+  animation: call-tile-enter 420ms cubic-bezier(.2,.75,.25,1) both;
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+.meeting-stage .meeting-video:hover {
+  border-color: #ffffff55;
+  box-shadow: 0 20px 48px #0006, 0 0 0 1px #ffffff12 inset;
+  transform: translateY(-2px);
+}
+.meeting-stage .meeting-video:nth-child(2) { animation-delay: 55ms; }
+.meeting-stage .meeting-video:nth-child(3) { animation-delay: 100ms; }
+.meeting-stage .meeting-video:nth-child(4) { animation-delay: 145ms; }
+.meeting-stage .meeting-media-status > span,
+.meeting-stage .meeting-participant-label {
+  border-color: #ffffff2b;
+  background: #0b1019e8;
+  color: #fff;
+  font-weight: 650;
+  box-shadow: 0 4px 14px #0004;
+}
+.meeting-stage .meeting-media-status > .media-disabled { color: #ffd0d5; }
+#root > .meeting > .meeting-controls {
+  border-top-color: #ffffff1c;
+  background: linear-gradient(180deg, #151b2400, #151b24d9);
+}
+#root > .meeting > .meeting-controls > button {
+  color: #edf2f9;
+  font-size: 11px;
+  transition: color 180ms ease, transform 180ms ease;
+}
+#root > .meeting > .meeting-controls > button:hover { color: #fff; transform: translateY(-2px); }
+#root > .meeting > .meeting-controls > button::after {
+  transition: transform 200ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms ease, background 200ms ease;
+}
+#root > .meeting > .meeting-controls > button:active { transform: translateY(0) scale(.97); }
+.meeting-copy { transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease; }
+.meeting-copy:hover { transform: translateY(-1px); }
+
+@keyframes call-tile-enter {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 760px) {
+  #root > .meeting { padding-inline: 14px; }
+  .meeting-stage { gap: 10px; }
+  .meeting-stage .meeting-video { border-radius: 15px; }
+}
+@media (max-width: 520px) {
+  .meeting-header { min-height: 62px; }
+  .meeting-stage { gap: 9px; }
+  .meeting-stage .meeting-video { border-radius: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .meeting-stage .meeting-video { animation: none; transition: none; }
+  .meeting-stage .meeting-video:hover,
+  #root > .meeting > .meeting-controls > button:hover,
+  .meeting-copy:hover { transform: none; }
+  #root > .meeting > .meeting-controls > button,
+  #root > .meeting > .meeting-controls > button::after,
+  .meeting-copy { transition: none; }
+}
+
+/* Make the in-call labels comfortable to read at a glance. */
+.meeting-stage .meeting-video > .meeting-placeholder {
+  object-fit: contain;
+  background: #91b6d8;
+}
+.meeting-stage .meeting-participant-label {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.meeting-stage .meeting-media-status > span {
+  gap: 7px;
+  padding: 8px 11px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.meeting-stage .meeting-media-status svg { width: 19px; height: 19px; }
+.meeting-title-group h1 { font-size: clamp(17px, 1.5vw, 20px); }
+.meeting-title-group > div > span { font-size: 12px; }
+.meeting-participant-count, .meeting-room-code { font-size: 13px; }
+.meeting-room-code strong { font-size: 12px; }
+#root > .meeting > .meeting-controls > button { font-size: 12px; }
+.meeting-media-error { font-size: 13px !important; }
+.meeting-stage .meeting-media-status > .media-disabled { color: #ffc5cc; }
+
+@media (max-width: 520px) {
+  .meeting-stage .meeting-participant-label { padding: 7px 10px; font-size: 12px; }
+  .meeting-stage .meeting-media-status > span { padding: 7px 9px; font-size: 11px; }
+  .meeting-stage .meeting-media-status svg { width: 16px; height: 16px; }
+  #root > .meeting > .meeting-controls > button { font-size: 10px; }
+}
+
+/* Larger, bolder call actions that remain easy to tap on small screens. */
+#root > .meeting > .meeting-controls { gap: clamp(8px, 1.5vw, 22px); }
+#root > .meeting > .meeting-controls > button {
+  width: clamp(76px, 8vw, 104px);
+  min-height: 88px;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 750;
+}
+#root > .meeting > .meeting-controls > button::after {
+  top: 4px;
+  left: calc(50% - 25px);
+  width: 50px;
+  height: 50px;
+}
+#root > .meeting > .meeting-controls > button::before { width: 23px; height: 23px; }
+.meeting-control-slash { top: 27px !important; left: calc(50% - 16px) !important; width: 32px !important; }
+#root .dashboard > .dashboard-main > .join-card button {
+  min-height: 54px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .1px;
+}
+@media (max-width: 520px) {
+  #root > .meeting > .meeting-controls { gap: 0; }
+  #root > .meeting > .meeting-controls > button {
+    width: 16.5%;
+    min-width: 58px;
+    min-height: 76px;
+    gap: 14px;
+    font-size: 11px;
+  }
+  #root > .meeting > .meeting-controls > button::after { top: 4px; width: 44px; height: 44px; left: calc(50% - 22px); }
+  #root > .meeting > .meeting-controls > button::before { width: 21px; height: 21px; }
+  .meeting-control-slash { top: 24px !important; left: calc(50% - 14px) !important; width: 28px !important; }
+  #root .dashboard > .dashboard-main > .join-card button { min-height: 52px; font-size: 15px; }
+}
+
+/* Clear, Zoom-inspired workspace navigation and meeting setup hierarchy. */
+#root .vibemeet-workspace {
+  background: #f2f6fc;
+  color: #172b45;
+}
+#root .vibemeet-workspace > .sidebar {
+  border-right-color: #dce6f3;
+  box-shadow: 3px 0 18px #1b416a08;
+}
+.workspace-brand { color: #142d4c; }
+#root .vibemeet-workspace .sidebar-kicker { color: #667b97; }
+#root .vibemeet-workspace .sidebar-nav button {
+  min-height: 50px;
+  color: #425873;
+  font-size: 14px;
+  font-weight: 700;
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+#root .vibemeet-workspace .sidebar-nav button:hover {
+  background: #f2f7ff;
+  color: #174f99;
+  transform: translateX(2px);
+}
+#root .vibemeet-workspace .sidebar-nav button.is-active {
+  border-color: #c8dcf8;
+  background: linear-gradient(100deg, #e8f2ff, #f3f8ff);
+  color: #124f9e;
+  box-shadow: inset 3px 0 #2878dd;
+}
+#root .vibemeet-workspace .sidebar-nav button > span {
+  width: 29px;
+  height: 29px;
+  flex-basis: 29px;
+  border-radius: 9px;
+  background: #edf3fb;
+  color: #4e6581;
+}
+#root .vibemeet-workspace .sidebar-nav button.is-active > span {
+  background: #d8eaff;
+  color: #1768c7;
+}
+#root .vibemeet-workspace > .dashboard-main {
+  gap: 24px 28px;
+  padding: clamp(28px, 3.4vw, 56px);
+}
+#root .vibemeet-workspace .dashboard-page-heading {
+  position: relative;
+  overflow: hidden;
+  border-color: #d5e5f8;
+  background: radial-gradient(ellipse at 90% 0%, #d9eaff 0%, transparent 42%), linear-gradient(120deg, #e9f3ff 0%, #f9fbff 75%);
+  box-shadow: 0 12px 30px #244b780b;
+}
+#root .vibemeet-workspace .dashboard-page-heading::after {
+  content: "";
+  position: absolute;
+  top: -56px;
+  right: 8%;
+  width: 180px;
+  height: 180px;
+  border: 1px solid #a9c9f344;
+  border-radius: 50%;
+  box-shadow: 0 0 0 22px #a9c9f318, 0 0 0 46px #a9c9f310;
+  pointer-events: none;
+}
+#root .vibemeet-workspace .dashboard-page-heading > span { color: #3d6fae; font-size: 11px; }
+#root .vibemeet-workspace .dashboard-page-heading h1 { color: #142f50; font-size: clamp(32px, 2.8vw, 42px); }
+#root .vibemeet-workspace .dashboard-page-heading p { color: #4f6682; font-size: 15px; }
+.workspace-shortcuts { gap: 16px; }
+#root .vibemeet-workspace .workspace-shortcut {
+  min-height: 104px;
+  padding: 17px;
+  border-color: #d8e4f2;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px #244b7808;
+}
+#root .vibemeet-workspace .workspace-shortcut:hover {
+  border-color: #90b8eb;
+  background: #fff;
+  box-shadow: 0 12px 26px #244b7818;
+  transform: translateY(-3px);
+}
+#root .vibemeet-workspace .workspace-shortcut.is-current {
+  border-color: #78a9e8;
+  background: linear-gradient(135deg, #edf5ff, #fff 78%);
+  box-shadow: inset 3px 0 #2d7cde, 0 5px 16px #2464a910;
+}
+.workspace-shortcut-icon { width: 43px; height: 43px; border-radius: 13px; }
+#root .vibemeet-workspace .workspace-shortcut strong { color: #1b3555; font-size: 15px; font-weight: 780; }
+#root .vibemeet-workspace .workspace-shortcut small { color: #536a86; font-size: 12px; }
+#root .vibemeet-workspace .workspace-shortcut::after { font-size: 25px; font-weight: 700; }
+.workspace-quick-actions > h2 { color: #173454; font-size: 21px; }
+.workspace-quick-actions > p { color: #536b88; font-size: 13px; }
+#root .vibemeet-workspace .workspace-quick-actions > .host-setup {
+  border-color: #d9e5f3;
+  background: linear-gradient(145deg, #fff 65%, #f4f8ff);
+  box-shadow: 0 14px 36px #1d46730d;
+}
+#root .vibemeet-workspace .host-setup-heading h1 { color: #163254; }
+#root .vibemeet-workspace .host-mode-card {
+  border-color: #d7e2ef;
+  border-radius: 15px;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
+}
+#root .vibemeet-workspace .host-mode-card:hover {
+  border-color: #8bb5e9;
+  box-shadow: 0 8px 18px #24558612;
+  transform: translateY(-2px);
+}
+#root .vibemeet-workspace .host-mode-card.is-selected {
+  border-color: #4d91e4;
+  background: linear-gradient(145deg, #eaf3ff, #f8fbff);
+  box-shadow: 0 0 0 2px #4d91e42b, 0 8px 18px #24558612;
+}
+#root .vibemeet-workspace .host-mode-copy strong { color: #173657; font-size: 16px; }
+#root .vibemeet-workspace .host-mode-copy small { color: #506986; font-size: 13px; }
+#root .vibemeet-workspace .workspace-join-rail {
+  position: relative;
+  overflow: hidden;
+  border-color: #cbdcf1;
+  background: linear-gradient(155deg, #fff 55%, #f1f7ff);
+  box-shadow: 0 14px 34px #1d467312;
+}
+#root .vibemeet-workspace .join-card h1 { color: #142f50; font-size: 23px; }
+#root .vibemeet-workspace .join-card input {
+  border-color: #cbd9e9;
+  background: #fff;
+  color: #1c3552;
+  font-size: 14px;
+}
+#root .vibemeet-workspace .join-card input::placeholder { color: #5c6f87; }
+#root .vibemeet-workspace .join-card button {
+  min-height: 52px;
+  border-radius: 12px;
+  background: linear-gradient(110deg, #126be0, #347fe8);
+  box-shadow: 0 8px 18px #1766cf2d;
+  font-size: 15px;
+  font-weight: 800;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+#root .vibemeet-workspace .join-card button:hover {
+  background: linear-gradient(110deg, #0d5fcf, #286fd5);
+  box-shadow: 0 11px 22px #1766cf3b;
+  transform: translateY(-1px);
+}
+#root .vibemeet-workspace :is(button, input):focus-visible { outline-offset: 3px; }
+@media (max-width: 680px) {
+  #root .vibemeet-workspace .sidebar-nav button { min-height: 46px; font-size: 12px; }
+  #root .vibemeet-workspace .workspace-shortcut { min-height: 84px; }
+  #root .vibemeet-workspace .dashboard-page-heading::after { right: -40px; opacity: .55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #root .vibemeet-workspace .sidebar-nav button,
+  #root .vibemeet-workspace .host-mode-card,
+  #root .vibemeet-workspace .join-card button { transition: none; }
+  #root .vibemeet-workspace .sidebar-nav button:hover,
+  #root .vibemeet-workspace .workspace-shortcut:hover,
+  #root .vibemeet-workspace .host-mode-card:hover,
+  #root .vibemeet-workspace .join-card button:hover { transform: none; }
 }

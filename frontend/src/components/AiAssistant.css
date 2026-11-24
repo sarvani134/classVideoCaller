@@ -315,3 +315,23 @@
   cursor: ew-resize !important;
   user-select: none;
 }
+
+.ai-panel {
+  color: #18283d;
+  border-left-color: #d8e1ee;
+  box-shadow: -16px 0 48px #091a302b;
+  animation: millie-panel-enter 240ms cubic-bezier(.2,.75,.25,1) both;
+}
+.ai-panel .ai-header h3 { color: #172a43; }
+.ai-panel .ai-messages { color: #263950; }
+.ai-panel .assistant-ai-message { color: #263950; }
+.ai-panel .ai-composer textarea { color: #18283d; }
+.ai-panel .ai-composer textarea::placeholder { color: #5c6b80; }
+.ai-panel button { transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease; }
+.ai-panel button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 14px #19365c14; }
+@keyframes millie-panel-enter { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .ai-panel { animation: none; }
+  .ai-panel button { transition: none; }
+  .ai-panel button:hover:not(:disabled) { transform: none; }
+}

@@ -63,8 +63,9 @@ const start=async()=>{
         console.log(`Cleared legacy attendance from ${attendanceMigration.modifiedCount} meeting records`)
     }
     
-server.listen(process.env.PORT,()=>{
-    console.log(`listening from PORT ${process.env.PORT}`)
+const port = process.env.PORT || 5050
+server.listen(port, "0.0.0.0",()=>{
+    console.log(`listening from PORT ${port}`)
 })
 }
 start().catch(error => {

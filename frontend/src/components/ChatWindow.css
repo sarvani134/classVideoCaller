@@ -620,3 +620,30 @@
 .chat-message {
   scroll-margin-top: 80px;
 }
+
+/* Clearer chat typography and a quick, reduced-motion-safe panel entrance. */
+.chat-window {
+  color: #18283d;
+  border-left-color: #d8e1ee;
+  box-shadow: -16px 0 48px #091a302b;
+  animation: chat-panel-enter 240ms cubic-bezier(.2,.75,.25,1) both;
+}
+.chat-header h2 { color: #172a43; }
+.chat-header p,
+.chat-empty p,
+.chat-composer > p { color: #526176; }
+.chat-sender { color: #40516a; }
+.chat-input-row textarea { color: #18283d; }
+.chat-input-row textarea::placeholder { color: #5c6b80; }
+.chat-message-menu-button,
+.chat-close { transition: background-color 160ms ease, color 160ms ease, transform 160ms ease; }
+.chat-message-menu-button:hover,
+.chat-close:hover { transform: scale(1.04); }
+.chat-message { animation: chat-message-enter 220ms ease-out both; }
+@keyframes chat-panel-enter { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes chat-message-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .chat-window, .chat-message { animation: none; }
+  .chat-message-menu-button, .chat-close { transition: none; }
+  .chat-message-menu-button:hover, .chat-close:hover { transform: none; }
+}

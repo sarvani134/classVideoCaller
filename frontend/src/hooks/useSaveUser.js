@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
+import { backendUrl } from '../api'
 
 // Save the profile after Auth0 returns from login or registration.
 export default function useSaveUser() {
@@ -25,8 +26,7 @@ export default function useSaveUser() {
         const token = await getAccessTokenSilently()
         if (!active) return
 
-        const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5050').replace(/\/$/, '')
-        const response = await fetch(`${apiUrl}/users/profile`, {
+        const response = await fetch(`${backendUrl.replace(/\/$/, '')}/users/profile`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
