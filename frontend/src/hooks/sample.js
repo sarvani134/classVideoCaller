@@ -1,9 +1,9 @@
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "../context/AuthContext.jsx"
 import { useEffect } from "react"
 
 
 export const  useSaveUserSample=()=>{
-    const {isAuthenticated,user,getAccessTokenSilently}=useAuth0()
+    const {isAuthenticated,user,getAccessTokenSilently}=useAuth()
     useEffect(()=>{
         if(!isAuthenticated || !user)return
         

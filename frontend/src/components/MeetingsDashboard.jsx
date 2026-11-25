@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "../context/AuthContext.jsx"
 import { useNavigate } from "react-router-dom"
 import api from "../api"
 import exportAttendanceXlsx from "../utils/exportAttendanceXlsx"
@@ -17,7 +17,7 @@ const formatDuration = (seconds) => {
 }
 
 function MeetingsDashboard({ tab }) {
-  const { getAccessTokenSilently } = useAuth0()
+  const { getAccessTokenSilently } = useAuth()
   const navigate = useNavigate()
   const [meetings, setMeetings] = useState([])
   const [loading, setLoading] = useState(true)

@@ -6,7 +6,7 @@ import {
 } from "react-router-dom"
 
 import { io } from "socket.io-client"
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "../context/AuthContext.jsx"
 import api from "../api"
 import ChatWindow from "./ChatWindow"
 import AiAssistant from "./AiAssistant"
@@ -63,7 +63,7 @@ function getHostDisplayName(user) {
 
 function MeetingPage() {
 
-  const { getAccessTokenSilently, user } = useAuth0()
+  const { getAccessTokenSilently, user } = useAuth()
 
   const { roomId } = useParams()
 

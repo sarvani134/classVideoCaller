@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "../context/AuthContext.jsx"
 import api from "../api"
 import "./Host.css"
 
@@ -9,7 +9,7 @@ const toLocalInputValue = (date) => new Date(date.getTime() - date.getTimezoneOf
 
 function Host() {
   const navigate = useNavigate()
-  const { getAccessTokenSilently } = useAuth0()
+  const { getAccessTokenSilently } = useAuth()
   const fileInput = useRef(null)
   const [mode, setMode] = useState("meeting")
   const [takeAttendance, setTakeAttendance] = useState(true)

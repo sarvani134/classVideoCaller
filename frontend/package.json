@@ -10,9 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@auth0/auth0-auth-js": "^1.15.0",
-    "@auth0/auth0-react": "^2.24.1",
-    "auth0": "^7.1.0",
     "axios": "^1.20.0",
     "crypto": "^1.0.1",
     "jszip": "^3.10.2",

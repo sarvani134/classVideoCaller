@@ -9,8 +9,10 @@ const userSchema=new Schema({
       required: true,
       unique: true,
     },
+    passwordHash: { type: String, select: false },
     name: String,
   email: String,
+  emailNormalized: { type: String, unique: true, sparse: true, select: false },
   picture: String,
     
 },{timestamps:true})

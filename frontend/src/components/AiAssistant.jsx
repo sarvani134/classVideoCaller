@@ -1,13 +1,13 @@
 import React, { useRef, useState } from "react"
 import "./AiAssistant.css"
 import api from "../api"
-import { useAuth0 } from "@auth0/auth0-react"
+import { useAuth } from "../context/AuthContext.jsx"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 function AiAssistant({ messages, setMessages, onClose, teachingMode = false, teachingSource = null }) {
     const [message, setMessage] = useState("")
-     const {getAccessTokenSilently}=useAuth0()
+     const {getAccessTokenSilently}=useAuth()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const [panelWidth, setPanelWidth] = useState(420)

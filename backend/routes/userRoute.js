@@ -1,6 +1,7 @@
 import express from "express"
-import { aiChat, saveUser } from "../controllers/userController.js"
+import { aiChat } from "../controllers/userController.js"
 import { checkJwt } from "../middlewares/authMiddleware.js"
+import { currentUser, login, register } from "../controllers/authController.js"
 import { receiveImage } from "../middlewares/receiveImage.js"
 import {
   createMeeting,
@@ -15,7 +16,9 @@ import {
 
 export const router = express.Router()
 
-router.post("/profile", checkJwt, saveUser)
+router.post("/auth/register", register)
+router.post("/auth/login", login)
+router.get("/auth/me", checkJwt, currentUser)
 router.post("/aiChat",checkJwt,receiveImage,aiChat)
 router.post("/meetings", checkJwt, createMeeting)
 router.get("/meetings", checkJwt, listMeetings)
